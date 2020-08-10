@@ -1,3 +1,4 @@
+/* eslint-disable react/prefer-stateless-function */
 import React, { Component } from 'react';
 import { FaGithubAlt, FaPlus, FaSpinner } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
@@ -7,15 +8,17 @@ import api from '../../services/api';
 import Container from '../../components/Container';
 import { Form, SubmitButton, List } from './styles';
 
-export default class Main extends Component {
-  state = {
-    newRepo: '',
-    repositories: [],
-    loading: false,
-    error: null,
-  };
+class Main extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      newRepo: '',
+      repositories: [],
+      loading: false,
+      repoExists: true,
+    };
+  }
 
-  // Carregar os dados do localStorage
   componentDidMount() {
     const repositories = localStorage.getItem('repositories');
 
@@ -24,7 +27,6 @@ export default class Main extends Component {
     }
   }
 
-  // Salvar os dados do localStorage
   componentDidUpdate(_, prevState) {
     const { repositories } = this.state;
 
@@ -33,25 +35,32 @@ export default class Main extends Component {
     }
   }
 
-  handleInputChange = e => {
-    this.setState({ newRepo: e.target.value, error: null });
+  handleInputChange = (e) => {
+    this.setState({ newRepo: e.target.value });
   };
 
-  handleSubmit = async e => {
+  handleSubmit = async (e) => {
     e.preventDefault();
 
-    this.setState({ loading: true, error: false });
+    this.setState({ loading: true });
+
+    const { newRepo, repositories } = this.state;
 
     try {
-      const { newRepo, repositories } = this.state;
-
-      if (newRepo === '') throw 'Você precisa indicar um repositório';
-
-      const hasRepo = repositories.find(r => r.name === newRepo);
-
-      if (hasRepo) throw 'Repositório duplicado';
-
       const response = await api.get(`/repos/${newRepo}`);
+
+      // repositories.map((repository) => {
+      //   if (response.data.full_name === repository.name)
+      //     throw new Error('Repositório já existe');
+
+      //   return false;
+      // });
+
+      const repoAlreadyExist = repositories.find(
+        (repository) => repository.name === response.data.full_name
+      );
+
+      if (repoAlreadyExist) throw new Error('Repositório já existe');
 
       const data = {
         name: response.data.full_name,
@@ -60,16 +69,20 @@ export default class Main extends Component {
       this.setState({
         repositories: [...repositories, data],
         newRepo: '',
+        loading: false,
+        repoExists: true,
       });
-    } catch (error) {
-      this.setState({ error: true });
-    } finally {
-      this.setState({ loading: false });
+    } catch (err) {
+      this.setState({
+        repoExists: false,
+        loading: false,
+        newRepo: '',
+      });
     }
   };
 
   render() {
-    const { newRepo, repositories, loading, error } = this.state;
+    const { newRepo, repositories, loading, repoExists } = this.state;
 
     return (
       <Container>
@@ -78,7 +91,7 @@ export default class Main extends Component {
           Repositórios
         </h1>
 
-        <Form onSubmit={this.handleSubmit} error={error}>
+        <Form onSubmit={this.handleSubmit} repoExists={repoExists}>
           <input
             type="text"
             placeholder="Adicionar repositório"
@@ -88,18 +101,18 @@ export default class Main extends Component {
 
           <SubmitButton loading={loading}>
             {loading ? (
-              <FaSpinner color="#FFF" size={14} />
+              <FaSpinner color="#fff" size={14} />
             ) : (
-              <FaPlus color="#FFF" size={14} />
+              <FaPlus color="#fff#" size={14} />
             )}
           </SubmitButton>
         </Form>
 
         <List>
-          {repositories.map(repository => (
-            <li key={repository.name}>
-              <span>{repository.name}</span>
-              <Link to={`/repository/${encodeURIComponent(repository.name)}`}>
+          {repositories.map((repo) => (
+            <li key={repo.name}>
+              <span>{repo.name}</span>
+              <Link to={`/repository/${encodeURIComponent(repo.name)}`}>
                 Detalhes
               </Link>
             </li>
@@ -109,3 +122,5 @@ export default class Main extends Component {
     );
   }
 }
+
+export default Main;
