@@ -4,7 +4,6 @@
 
 <h3 align="center">
   Challenge 05: First ReactJS Project
-  Desafio 5: Primeiro projeto com ReactJS
 </h3>
 
 <p align="center">
