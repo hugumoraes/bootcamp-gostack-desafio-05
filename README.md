@@ -22,7 +22,7 @@
 
 ## :rocket: Sobre o desafio
 
-Nesse desafio você adicionará novas funcionalidades na aplicação que desenvolvemos ao longo desse módulo.
+In this challenge you'll add new functionalities to the app we did over the module.
 
 ### Funcionalidades
 
