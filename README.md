@@ -24,8 +24,7 @@
 
 In this challenge you'll add new functionalities to the app we did over the module.
 
-### Funcionalidades
-
+### Functionalities
 #### 1. Captando erros
 
 Adicione um `try/catch` por volta do código presente na função `handleSubmit` presente no componente `Main` e caso um repositório não seja encontrado na API do Github adicione uma borda vermelha por volta do input em que o usuário digitou o nome do repositório.
